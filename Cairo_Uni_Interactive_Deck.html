@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>أساسيات هندسة البرمجيات - جامعة القاهرة (عرض تفاعلي)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap');
+  :root {
+    --bg-dark: #090d16;
+    --bg-card: #131c31;
+    --bg-card-hover: #1e293b;
+    --primary: #38bdf8;
+    --accent: #facc15;
+    --success: #4ade80;
+    --danger: #f87171;
+    --purple: #c084fc;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+
+  /* Top Interactive Navbar */
+  .navbar {
+    background: rgba(19, 28, 49, 0.95);
+    border-bottom: 2px solid #1e293b;
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.15rem; color: var(--accent); cursor: pointer; }
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-btn {
+    background: #1e293b;
+    color: var(--text);
+    border: 1px solid #334155;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Cairo';
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active-sec { background: var(--primary); color: #090d16; border-color: var(--primary); transform: translateY(-1px); }
+  .slide-select {
+    background: #0f172a;
+    color: var(--accent);
+    border: 1px solid var(--primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'Cairo';
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  /* Progress Bar */
+  .progress-container { width: 100%; height: 4px; background: #1e293b; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 5%; transition: width 0.3s ease; }
+
+  /* Slide Container */
+  .slides-wrapper { flex: 1; position: relative; overflow: hidden; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 30px 60px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.08), transparent 45%),
+                radial-gradient(circle at 15% 85%, rgba(250, 204, 21, 0.06), transparent 45%);
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(15px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .slide-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(56, 189, 248, 0.3); padding-bottom: 12px; margin-bottom: 18px; }
+  .slide-header h1 { font-size: 2rem; color: var(--primary); font-weight: 800; }
+  .badge { background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 5px 16px; border-radius: 999px; font-weight: 700; font-size: 0.95rem; }
+
+  .slide-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+
+  /* Layouts & Cards */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid #26334d;
+    border-right: 5px solid var(--primary);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.25s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--primary); background: var(--bg-card-hover); }
+  .card.gold { border-right-color: var(--accent); }
+  .card.green { border-right-color: var(--success); }
+  .card.purple { border-right-color: var(--purple); }
+  .card h3 { color: var(--accent); font-size: 1.3rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .card p, .card li { font-size: 1.15rem; line-height: 1.65; color: #e2e8f0; }
+  .card ul { padding-right: 20px; }
+
+  .en { font-family: 'Fira Code', monospace; color: var(--primary); font-weight: 600; direction: ltr; display: inline-block; background: rgba(56, 189, 248, 0.1); padding: 1px 7px; border-radius: 5px; font-size: 0.95em; }
+
+  /* Interactive Buttons */
+  .action-btn {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Cairo';
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+  }
+  .action-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
+  .action-btn.gold { background: linear-gradient(135deg, #eab308, #ca8a04); color: #090d16; }
+  .action-btn.green { background: linear-gradient(135deg, #16a34a, #15803d); }
+
+  /* Code Blocks */
+  pre {
+    direction: ltr;
+    text-align: left;
+    background: #050811;
+    color: #e2e8f0;
+    padding: 18px;
+    border-radius: 12px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.02rem;
+    border-left: 4px solid var(--accent);
+    line-height: 1.55;
+    overflow-x: auto;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+  }
+  .code-line { padding: 2px 8px; border-radius: 4px; transition: background 0.2s; display: block; }
+  .code-line.highlight { background: rgba(250, 204, 21, 0.28); border-left: 3px solid var(--accent); color: #fff; font-weight: bold; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 12px; overflow: hidden; font-size: 1.12rem; }
+  th { background: #0284c7; color: white; padding: 12px 16px; text-align: right; }
+  td { padding: 12px 16px; border-bottom: 1px solid #1e293b; }
+  tr:hover td { background: rgba(56, 189, 248, 0.07); }
+
+  /* Flowchart Shapes */
+  .flow-container { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .flow-node {
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    border: 2px solid #475569;
+    background: #1e293b;
+    color: #fff;
+    transition: all 0.3s;
+    min-width: 220px;
+  }
+  .flow-node.oval { border-radius: 999px; border-color: var(--accent); }
+  .flow-node.io { transform: skew(-15deg); border-color: var(--primary); }
+  .flow-node.io span { display: inline-block; transform: skew(15deg); }
+  .flow-node.rect { border-radius: 6px; border-color: var(--success); }
+  .flow-node.diamond { border-color: var(--purple); background: #2e1065; border-radius: 8px; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding: 24px 35px; }
+  .flow-node.active-step { background: var(--accent) !important; color: #000 !important; border-color: #fff !important; transform: scale(1.08); box-shadow: 0 0 20px var(--accent); }
+
+  /* RAM Simulator Boxes */
+  .ram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .ram-box {
+    background: #090d16;
+    border: 2px dashed #475569;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.35s;
+    opacity: 0.4;
+  }
+  .ram-box.allocated { opacity: 1; border-style: solid; border-color: var(--success); background: rgba(74, 222, 128, 0.08); transform: scale(1.03); }
+  .ram-type { font-size: 0.85rem; color: var(--primary); font-family: 'Fira Code'; }
+  .ram-name { font-size: 1.1rem; color: var(--accent); font-weight: bold; margin: 4px 0; font-family: 'Fira Code'; }
+  .ram-val { font-size: 1.4rem; color: #fff; font-weight: 800; background: #1e293b; padding: 6px; border-radius: 8px; font-family: 'Fira Code'; }
+
+  /* Bottom Controls */
+  .footer {
+    background: rgba(19, 28, 49, 0.9);
+    border-top: 1px solid #1e293b;
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ctrl-group { display: flex; gap: 10px; align-items: center; }
+  .input-box { background: #0f172a; border: 1px solid var(--primary); color: #fff; padding: 8px 12px; border-radius: 8px; font-family: 'Fira Code'; font-size: 1rem; width: 110px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<div class="navbar">
+  <div class="brand" onclick="goToSlide(0)">
+    🎓 جامعة القاهرة | Software Engineering Fundamentals
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="goToSlide(0)">🏠 الرئيسية</button>
+    <button class="nav-btn" onclick="goToSlide(1)">🗺️ شرح المقرر (30 د)</button>
+    <button class="nav-btn" onclick="goToSlide(4)">🧠 Computational Thinking (2 س)</button>
+    <button class="nav-btn" onclick="goToSlide(10)">☕ Break</button>
+    <button class="nav-btn" onclick="goToSlide(11)">💻 Java Fundamentals (2 س)</button>
+    <button class="nav-btn" onclick="goToSlide(18)">🛠️ Hands-on Lab (1 س)</button>
+    <select class="slide-select" id="slideJump" onchange="goToSlide(parseInt(this.value))"></select>
+  </div>
+</div>
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="slides-wrapper">
+
+  <!-- SLIDE 0: Cover & Interactive Portal -->
+  <div class="slide active" data-sec="0">
+    <div style="text-align:center; margin:auto; max-width: 1100px;">
+      <span class="badge" style="font-size:1.1rem; padding:8px 22px;">مركز الحساب العلمي - جامعة القاهرة | سبتمبر 2026</span>
+      <h1 style="font-size:3.3rem; color:var(--accent); margin:18px 0 8px; font-weight:900;">شهادة أساسيات هندسة البرمجيات</h1>
+      <h2 style="font-size:1.9rem; color:var(--primary); font-family:'Fira Code'; direction:ltr; margin-bottom:15px;">CERTIFICATE IN SOFTWARE ENGINEERING FUNDAMENTALS</h2>
+      <p style="font-size:1.35rem; color:#cbd5e1; margin-bottom:30px;">الجزء الأول: مرحلة التأسيس والتأهيل قبل التخصص (3 أشهر - 72 ساعة تدريبية - 6 ساعات أسبوعياً)</p>
+      
+      <p style="color:var(--accent); font-weight:700; margin-bottom:15px; font-size:1.2rem;">👇 اضغط على أي جزء للانتقال إليه مباشرة أثناء الشرح:</p>
+      <div class="grid-4">
+        <div class="card gold" style="cursor:pointer; text-align:center;" onclick="goToSlide(1)">
+          <h3 style="justify-content:center;">1️⃣ شرح المقرر</h3>
+          <p><span class="en">Program Overview</span></p>
+          <p style="color:var(--accent); font-weight:bold; margin-top:8px;">⏱️ 30 دقيقة</p>
+        </div>
+        <div class="card" style="cursor:pointer; text-align:center;" onclick="goToSlide(4)">
+          <h3 style="justify-content:center;">2️⃣ التفكير الحاسوبي</h3>
+          <p><span class="en">Computational Thinking</span></p>
+          <p style="color:var(--primary); font-weight:bold; margin-top:8px;">⏱️ ساعتان (120 د)</p>
+        </div>
+        <div class="card green" style="cursor:pointer; text-align:center;" onclick="goToSlide(11)">
+          <h3 style="justify-content:center;">3️⃣ أساسيات البرمجة</h3>
+          <p><span class="en">Java Fundamentals</span></p>
+          <p style="color:var(--success); font-weight:bold; margin-top:8px;">⏱️ ساعتان (120 د)</p>
+        </div>
+        <div class="card purple" style="cursor:pointer; text-align:center;" onclick="goToSlide(18)">
+          <h3 style="justify-content:center;">4️⃣ تدريبات المعمل</h3>
+          <p><span class="en">Hands-on Lab</span></p>
+          <p style="color:var(--purple); font-weight:bold; margin-top:8px;">⏱️ ساعة كاملة (60 د)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: Philosophy & Why this program -->
+  <div class="slide" data-sec="1">
+    <div class="slide-header">
+      <h1>أولاً: فلسفة البرنامج التدريبي (Program Philosophy)</h1>
+      <span class="badge">الجزء الأول: 30 دقيقة</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>1. تأسيس هندسي قبل التخصص <span class="en">Core Foundation</span></h3>
+        <p>التركيز على المفاهيم الجوهرية ذات القيمة المباشرة للمبرمج قبل الانتقال في الجزء الثاني إلى مسارات التخصص: <span class="en">Web, Mobile, Desktop, or Game Development</span>.</p>
+      </div>
+      <div class="card gold">
+        <h3>2. الأداة الأنسب لكل مادة <span class="en">Right Tool for the Job</span></h3>
+        <p>بدل فرض لغة واحدة على كل المواد، نستخدم <span class="en">Java</span> للبرمجة وهياكل البيانات، <span class="en">HTML/CSS/JS</span> للواجهة، <span class="en">PostgreSQL</span> لقواعد البيانات، <span class="en">C/C++</span> للعتاد ونظام التشغيل، و <span class="en">Python</span> للشبكات.</p>
+      </div>
+      <div class="card green">
+        <h3>3. منتج مرئي منذ الشهر الأول <span class="en">Beyond Console</span></h3>
+        <p>الانتقال المبكر من شاشة الـ <span class="en">Console</span> السوداء إلى إنتاج تطبيق تجاري بواجهة مرئية <span class="en">Web UI</span> مربوط بقاعدة بيانات حقيقية.</p>
+      </div>
+      <div class="card purple">
+        <h3>4. التقييم ومشروع الـ <span class="en">Mini ERP</span></h3>
+        <p>تطبيق تراكمي على وحدات تجارية (<span class="en">POS, Inventory, HR, Sales, CRM</span>) مع تقييم شهري متوازن يشمل: <span class="en">Monthly MCQ + Team Project + Presentation/Viva</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Interactive 3-Month Roadmap -->
+  <div class="slide" data-sec="1">
+    <div class="slide-header">
+      <h1>خريطة الشهور الثلاثة التفاعلية (3-Month Interactive Roadmap)</h1>
+      <span class="badge">72 ساعة تدريبية (6 ساعات/أسبوع)</span>
+    </div>
+    <div class="slide-body">
+      <div style="display:flex; gap:15px; justify-content:center; margin-bottom:10px;">
+        <button class="action-btn" onclick="showMonth(1)">📅 الشهر الأول: بناء التطبيق (24 ساعة)</button>
+        <button class="action-btn gold" onclick="showMonth(2)">⚙️ الشهر الثاني: الأنظمة والشبكات (24 ساعة)</button>
+        <button class="action-btn green" onclick="showMonth(3)">🚀 الشهر الثالث: الخوارزميات والفريق (24 ساعة)</button>
+      </div>
+
+      <div id="monthBox1" class="grid-2">
+        <div class="card">
+          <h3>مقررات الشهر الأول <span class="en">Month 1 Courses</span></h3>
+          <ul>
+            <li><b>Computational Thinking (6h):</b> <span class="en">Pseudocode + Flowcharts</span></li>
+            <li><b>Programming Fundamentals (8h):</b> <span class="en">Java Basics</span></li>
+            <li><b>Frontend Fundamentals (5h):</b> <span class="en">HTML + CSS + JS</span></li>
+            <li><b>Database I (5h):</b> <span class="en">SQL + PostgreSQL</span></li>
+          </ul>
+        </div>
+        <div class="card gold">
+          <h3>الاستفادة ومخرج الشهر الأول <span class="en">Month 1 Deliverable</span></h3>
+          <p>بناء عقلية برمجية سليمة وإنشاء أول تطبيق تجاري مصغر (<span class="en">Mini ERP Module</span>) بواجهة ويب وقاعدة بيانات <span class="en">PostgreSQL</span> ينفذ عمليات <span class="en">CRUD (Create, Read, Update, Delete)</span> باستخدام <span class="en">JSON</span>.</p>
+        </div>
+      </div>
+
+      <div id="monthBox2" class="grid-2" style="display:none;">
+        <div class="card gold">
+          <h3>مقررات الشهر الثاني <span class="en">Month 2 Courses</span></h3>
+          <ul>
+            <li><b>Computer Architecture (5h):</b> <span class="en">C + Assembly Basics (CPU & RAM)</span></li>
+            <li><b>Operating Systems (5h):</b> <span class="en">C++ (Processes, Threads, Files)</span></li>
+            <li><b>Networking Fundamentals (7h):</b> <span class="en">Python (IP, Ports, TCP/UDP, Sockets)</span></li>
+            <li><b>OOP & Software Structure (7h):</b> <span class="en">Java (Classes, Objects, Pillars)</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>الاستفادة ومخرج الشهر الثاني <span class="en">Month 2 Deliverable</span></h3>
+          <p>فهم كيف يعمل البرنامج داخل المعالج والذاكرة ونظام التشغيل والشبكة، وتحويل مشروع الشهر الأول إلى نظام <span class="en">Client/Server</span> يعمل بين جهازين على الشبكة مع إعادة هيكلة الكود بـ <span class="en">OOP</span>.</p>
+        </div>
+      </div>
+
+      <div id="monthBox3" class="grid-2" style="display:none;">
+        <div class="card green">
+          <h3>مقررات الشهر الثالث <span class="en">Month 3 Courses</span></h3>
+          <ul>
+            <li><b>Algorithms (7h):</b> <span class="en">Java (Big O, Searching, Sorting, Recursion)</span></li>
+            <li><b>Data Structures (7h):</b> <span class="en">Java (List, Stack, Queue, HashMap, Trees)</span></li>
+            <li><b>Logic for Computing (5h):</b> <span class="en">Boolean Logic, Truth Tables, Sets</span></li>
+            <li><b>Collaborative Development (5h):</b> <span class="en">Git & GitHub Workflow</span></li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <h3>الاستفادة ومخرج الشهر الثالث <span class="en">Capstone Project</span></h3>
+          <p>رفع كفاءة الكود واختيار <span class="en">Data Structure & Algorithm</span> مناسبة للبحث والترتيب، وإدارة المشروع جماعياً كفريق محترف عبر <span class="en">GitHub Branches, Pull Requests & Merge Conflict Resolution</span>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Progression to Part II -->
+  <div class="slide" data-sec="1">
+    <div class="slide-header">
+      <h1>الانتقال إلى مسارات التخصص بعد الـ 3 شهور (Progression to Part II)</h1>
+      <span class="badge">ماذا بعد التأسيس؟</span>
+    </div>
+    <div class="slide-body">
+      <p style="font-size:1.3rem; text-align:center; color:var(--accent);">بعد إتمام هذا المستوى التأسيسي بنجاح، يمتلك الطالب أساساً هندسياً صلباً يؤهله لاختيار أحد المسارات التخصصية الأربعة:</p>
+      <div class="grid-4">
+        <div class="card">
+          <h3>🌐 تطوير الويب<br><span class="en">Web Development</span></h3>
+          <p><span class="en">Frontend + Backend + REST APIs + Web Architecture + Deployment</span></p>
+        </div>
+        <div class="card gold">
+          <h3>📱 تطبيقات الموبايل<br><span class="en">Mobile Development</span></h3>
+          <p><span class="en">Mobile UI + App Logic + APIs + Local/Remote Data + Store Deployment</span></p>
+        </div>
+        <div class="card green">
+          <h3>🖥️ تطبيقات سطح المكتب<br><span class="en">Desktop Applications</span></h3>
+          <p><span class="en">Desktop UI + Business Systems + Database Integration + Packaging</span></p>
+        </div>
+        <div class="card purple">
+          <h3>🎮 تطوير الألعاب<br><span class="en">Game Development</span></h3>
+          <p><span class="en">Game Programming + Engine Concepts + Physics + Gameplay Systems</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Computational Thinking Intro & 4 Pillars -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>ثانياً: التفكير الحاسوبي (Computational Thinking)</h1>
+      <span class="badge">الجزء الثاني: ساعتان (120 دقيقة)</span>
+    </div>
+    <div class="slide-body">
+      <div class="card gold" style="text-align:center;">
+        <h3 style="justify-content:center; font-size:1.5rem;">💡 القاعدة الذهبية للمبرمج: "حل المشكلة على الورق أولاً قبل كتابة سطر كود واحد"</h3>
+        <p>التفكير الحاسوبي هو عملية صياغة المشكلات الحياتية والتجارية بطريقة تسمح للكمبيوتر بتنفيذها عبر 4 أركان أساسية:</p>
+      </div>
+      <div class="grid-4">
+        <div class="card">
+          <h3>1. التفكيك<br><span class="en">Decomposition</span></h3>
+          <p>تقسيم المشكلة الكبيرة المعقدة إلى مشاكل ومهام صغيرة يسهل حلها وبناؤها خطوة بخطوة.</p>
+        </div>
+        <div class="card gold">
+          <h3>2. كشف الأنماط<br><span class="en">Pattern Recognition</span></h3>
+          <p>ملاحظة التشابه والتكرار بين المشكلات الفرعية لتصميم حل موحد يوفر الوقت والمجهود.</p>
+        </div>
+        <div class="card green">
+          <h3>3. التجريد<br><span class="en">Abstraction</span></h3>
+          <p>التركيز على البيانات والتفاصيل المهمة فقط للمشكلة، وتجاهل التفاصيل غير المؤثرة برمجياً.</p>
+        </div>
+        <div class="card purple">
+          <h3>4. التفكير الخوارزمي<br><span class="en">Algorithmic Thinking</span></h3>
+          <p>كتابة خطوات مرتبة ومنطقية ومحددة لا تقبل اللبس للوصول من المدخلات إلى المخرجات.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Interactive Simulator for Decomposition & Abstraction -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>محاكي تفاعلي: التفكيك والتجريد في نظام تجاري (Interactive CT Lab)</h1>
+      <span class="badge">تفاعل مباشر على البروجكتور</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>🧩 1. جرب التفكيك <span class="en">(Decomposition)</span></h3>
+        <p>المشكلة الكبرى: <b>"بناء نظام سوبرماركت وكاشير متكامل (POS System)"</b></p>
+        <button class="action-btn" style="margin:12px 0;" onclick="document.getElementById('decompTree').style.display='grid'">🔨 اضغط لتفكيك النظام إلى وحدات صغيرة</button>
+        <div id="decompTree" class="grid-2" style="display:none; gap:10px; margin-top:8px;">
+          <div style="background:#0f172a; padding:10px; border-radius:8px; border-right:3px solid var(--accent);">📦 <b>1. إدارة المخزون:</b><br>إضافة صنف، تحديث كمية</div>
+          <div style="background:#0f172a; padding:10px; border-radius:8px; border-right:3px solid var(--primary);">🧾 <b>2. حساب الفاتورة:</b><br>جمع الأسعار، حساب الضريبة</div>
+          <div style="background:#0f172a; padding:10px; border-radius:8px; border-right:3px solid var(--success);">🏷️ <b>3. محرك الخصومات:</b><br>فحص شروط العروض والـ VIP</div>
+          <div style="background:#0f172a; padding:10px; border-radius:8px; border-right:3px solid var(--purple);">💳 <b>4. الدفع والإيصال:</b><br>كاش/فيزا وخصم الرصيد</div>
+        </div>
+      </div>
+
+      <div class="card gold">
+        <h3>🔍 2. جرب التجريد <span class="en">(Abstraction)</span></h3>
+        <p>عند تمثيل <b>"منتج في المخزن"</b>، أي البيانات نحتاجها برمجياً وأيها نتجاهله؟</p>
+        <button class="action-btn gold" style="margin:12px 0;" onclick="applyAbstraction()">✨ اضغط لتطبيق فلتر التجريد (Abstraction Filter)</button>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+          <span class="en" style="padding:8px 12px; font-size:1.05rem;">productID (كود الصنف)</span>
+          <span class="noise-item" style="background:#334155; padding:8px 12px; border-radius:6px; transition:0.4s;">لون كرتونة الشحن</span>
+          <span class="en" style="padding:8px 12px; font-size:1.05rem;">unitPrice (سعر الوحدة)</span>
+          <span class="noise-item" style="background:#334155; padding:8px 12px; border-radius:6px; transition:0.4s;">اسم سائق التوصيل</span>
+          <span class="en" style="padding:8px 12px; font-size:1.05rem;">stockQty (الكمية المتاحة)</span>
+          <span class="noise-item" style="background:#334155; padding:8px 12px; border-radius:6px; transition:0.4s;">نوع خط اللوجو على العلبة</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: IPO + Decisions Model -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>تحليل السيناريو التجاري إلى (Inputs / Processing / Decisions / Outputs)</h1>
+      <span class="badge">نموذج تحليل المشكلات</span>
+    </div>
+    <div class="slide-body">
+      <div class="card gold">
+        <h3>📌 السيناريو التجاري المطلوب تحليله (POS Discount & Stock Scenario):</h3>
+        <p>"عميل يريد شراء كمية من منتج معين. إذا كانت الكمية المطلوبة متوفرة في المخزن، يحسب البرنامج إجمالي السعر، وإذا وصل الإجمالي إلى <b>1000 جنيه أو أكثر</b> يحصل العميل على <b>خصم 10%</b>، ثم تُخصم الكمية المباعة من المخزن وتُطبع الفاتورة. وإذا كانت الكمية غير متوفرة تخرج رسالة خطأ."</p>
+      </div>
+      <div class="grid-4">
+        <div class="card">
+          <h3>1. المدخلات<br><span class="en">Inputs</span></h3>
+          <ul>
+            <li>سعر المنتج <span class="en">itemPrice</span></li>
+            <li>الكمية المطلوبة <span class="en">reqQty</span></li>
+            <li>رصيد المخزن <span class="en">stockQty</span></li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <h3>2. القرارات/الشروط<br><span class="en">Decisions</span></h3>
+          <ul>
+            <li>هل <span class="en">reqQty &gt; 0</span> ؟</li>
+            <li>هل <span class="en">reqQty &lt;= stockQty</span> ؟</li>
+            <li>هل <span class="en">total &gt;= 1000</span> ؟</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>3. المعالجة<br><span class="en">Processing</span></h3>
+          <ul>
+            <li><span class="en">total = itemPrice * reqQty</span></li>
+            <li>خصم 10%: <span class="en">total = total * 0.90</span></li>
+            <li><span class="en">stockQty = stockQty - reqQty</span></li>
+          </ul>
+        </div>
+        <div class="card gold">
+          <h3>4. المخرجات<br><span class="en">Outputs</span></h3>
+          <ul>
+            <li>طباعة الصافي <span class="en">total</span></li>
+            <li>طباعة المتبقي <span class="en">stockQty</span></li>
+            <li>أو رسالة <span class="en">"Out of Stock!"</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Flowchart Symbols -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>الرموز القياسية لخرائط التدفق (Flowchart Standard Symbols)</h1>
+      <span class="badge">Flowcharts</span>
+    </div>
+    <div class="slide-body">
+      <table>
+        <tr>
+          <th>الشكل الهندسي (Visual Shape)</th>
+          <th>الاسم الإنجليزي (Symbol Name)</th>
+          <th>الوظيفة البرمجية (Purpose in Algorithm)</th>
+        </tr>
+        <tr>
+          <td><div class="flow-node oval" style="display:inline-block; min-width:160px;">Start / End</div></td>
+          <td><span class="en">Terminal (Oval)</span></td>
+          <td>يمثل نقطة البداية <span class="en">(START)</span> ونقطة النهاية <span class="en">(END)</span> لأي خوارزمية.</td>
+        </tr>
+        <tr>
+          <td><div class="flow-node io" style="display:inline-block; min-width:160px;"><span>Read / Print</span></div></td>
+          <td><span class="en">Input / Output (Parallelogram)</span></td>
+          <td>يمثل قراءة مدخلات من المستخدم <span class="en">(READ / INPUT)</span> أو طباعة مخرجات <span class="en">(PRINT / OUTPUT)</span>.</td>
+        </tr>
+        <tr>
+          <td><div class="flow-node rect" style="display:inline-block; min-width:160px;">total = p * q</div></td>
+          <td><span class="en">Process (Rectangle)</span></td>
+          <td>يمثل العمليات الحسابية أو المعالجة وتخزين القيم داخل المتغيرات.</td>
+        </tr>
+        <tr>
+          <td><span style="background:#2e1065; border:2px solid var(--purple); padding:6px 18px; border-radius:6px; font-weight:bold; color:#fff;">◆ reqQty &lt;= stock?</span></td>
+          <td><span class="en">Decision (Diamond)</span></td>
+          <td>يمثل سؤالاً منطقياً أو شرطاً، ويتفرع منه دائماً مساران: <span class="en">True (Yes)</span> أو <span class="en">False (No)</span>.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: LIVE INTERACTIVE FLOWCHART & PSEUDOCODE SIMULATOR -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>محاكي تفاعلي: تتبع الـ Flowchart والـ Pseudocode خطوة بخطوة!</h1>
+      <span class="badge">Live Algorithm Simulator</span>
+    </div>
+    <div class="slide-body">
+      <div style="background:#131c31; padding:12px 20px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border:1px solid var(--primary);">
+        <div>
+          سعر المنتج <span class="en">Price</span>: <input type="number" id="simPrice" class="input-box" value="600">
+          الكمية <span class="en">ReqQty</span>: <input type="number" id="simQty" class="input-box" value="2">
+          المخزن <span class="en">Stock</span>: <input type="number" id="simStock" class="input-box" value="10">
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="action-btn gold" onclick="stepSim()">▶️ نفذ الخطوة التالية (Next Step)</button>
+          <button class="nav-btn" onclick="resetSim()">🔄 إعادة ضبط (Reset)</button>
+        </div>
+        <div id="simStatus" style="color:var(--accent); font-weight:bold; font-size:1.1rem;">اضغط "نفذ الخطوة التالية" لبدء التتبع...</div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Visual Flowchart -->
+        <div class="card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+          <div id="fn0" class="flow-node oval">START (البداية)</div>
+          <div id="fn1" class="flow-node io"><span>READ price, reqQty, stock</span></div>
+          <div id="fn2" class="flow-node" style="border-color:var(--purple); background:#2e1065;">◆ هل reqQty &lt;= stock ؟</div>
+          <div id="fn3" class="flow-node rect">total = price * reqQty</div>
+          <div id="fn4" class="flow-node" style="border-color:var(--purple); background:#2e1065;">◆ هل total &gt;= 1000 ؟ (خصم 10%)</div>
+          <div id="fn5" class="flow-node rect">خصم 10% وتحديث المخزن</div>
+          <div id="fn6" class="flow-node io"><span>PRINT Final Result (النتيجة)</span></div>
+        </div>
+
+        <!-- Synchronized Pseudocode -->
+        <div>
+          <pre style="font-size:0.98rem;">
+<span id="ps0" class="code-line">BEGIN</span>
+<span id="ps1" class="code-line">  READ itemPrice, reqQty, stockQty</span>
+<span id="ps2" class="code-line">  IF reqQty &lt;= stockQty AND reqQty &gt; 0 THEN</span>
+<span id="ps3" class="code-line">      total = itemPrice * reqQty</span>
+<span id="ps4" class="code-line">      IF total &gt;= 1000 THEN</span>
+<span id="ps5" class="code-line">          total = total - (total * 0.10)</span>
+<span id="ps6" class="code-line">      END IF</span>
+<span id="ps7" class="code-line">      stockQty = stockQty - reqQty</span>
+<span id="ps8" class="code-line">      PRINT "Total: ", total, " | Stock: ", stockQty</span>
+<span id="ps9" class="code-line">  ELSE</span>
+<span id="ps10" class="code-line">      PRINT "Error: Out of Stock or Invalid!"</span>
+<span id="ps11" class="code-line">  END IF</span>
+<span id="ps12" class="code-line">END</span></pre>
+          <div id="simOutputBox" style="background:#050811; border:1px solid var(--success); padding:12px; border-radius:10px; margin-top:10px; font-family:'Fira Code'; color:var(--success); min-height:48px;">
+            Output Console: Waiting for execution...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Board Exercise 2 (HR Payroll Pseudocode) -->
+  <div class="slide" data-sec="2">
+    <div class="slide-header">
+      <h1>تمرين تفاعلي رقم 2: تحليل نظام رواتب الموظفين (HR Payroll Analysis)</h1>
+      <span class="badge">تطبيق على السبورة</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card gold">
+        <h3>📋 سيناريو حساب راتب موظف <span class="en">HR Scenario</span>:</h3>
+        <p>نقرأ الراتب الأساسي للموظف <span class="en">basicSalary</span> وعدد الساعات الإضافية <span class="en">overtimeHours</span>.</p>
+        <ul>
+          <li>سعر الساعة الإضافية = <b>50 جنيه</b>.</li>
+          <li>إذا اشتغل الموظف <b>أكثر من 20 ساعة إضافية</b> يحصل على مكافأة تشجيعية <span class="en">Bonus = 500 EGP</span>.</li>
+          <li>يُخصم <b>10% ضرائب</b> من إجمالي الراتب الكلي <span class="en">grossSalary</span> للوصول لصافي الراتب <span class="en">netSalary</span>.</li>
+        </ul>
+        <button class="action-btn" style="margin-top:15px;" onclick="document.getElementById('hrPseudo').style.opacity='1'">👁️ إظهار الـ Pseudocode الكامل للحل</button>
+      </div>
+      <div id="hrPseudo" style="opacity:0.15; transition:0.4s;">
+        <pre>
+BEGIN
+    READ basicSalary, overtimeHours
+    overtimePay = overtimeHours * 50
+    bonus = 0
+
+    IF overtimeHours &gt; 20 THEN
+        bonus = 500
+    END IF
+
+    grossSalary = basicSalary + overtimePay + bonus
+    tax = grossSalary * 0.10
+    netSalary = grossSalary - tax
+
+    PRINT "Gross Salary: ", grossSalary
+    PRINT "Net Salary after Tax: ", netSalary
+END</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Break Timer Slide -->
+  <div class="slide" data-sec="3">
+    <div style="text-align:center; margin:auto;">
+      <h1 style="font-size:3.5rem; color:var(--accent);">☕ استراحة (Break Time)</h1>
+      <p style="font-size:1.5rem; color:#cbd5e1; margin:15px 0;">مدة الاستراحة: 30 دقيقة — نعود بعدها لبدء الجزء الثالث: <span class="en">Java Programming Fundamentals</span></p>
+      <div id="timerDisplay" style="font-size:5rem; font-family:'Fira Code'; color:var(--primary); font-weight:900; margin:25px 0;">30:00</div>
+      <div style="display:flex; gap:15px; justify-content:center;">
+        <button class="action-btn green" onclick="startBreakTimer()">▶️ بدء عداد الـ 30 دقيقة</button>
+        <button class="nav-btn" onclick="resetBreakTimer()">🔄 إعادة ضبط العداد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: Java Fundamentals Intro & Compilation Pipeline -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>ثالثاً: أساسيات البرمجة بلغة جافا (Programming Fundamentals - Java)</h1>
+      <span class="badge">الجزء الثالث: ساعتان (120 دقيقة)</span>
+    </div>
+    <div class="slide-body">
+      <p style="font-size:1.25rem;">لماذا نبدأ بلغة <span class="en">Java</span>؟ لأنها لغة قوية التنميط <span class="en">Strongly Typed</span> تجبرك على فهم أنواع البيانات وتنظيم الكود بدقة، وتعمل على أي نظام تشغيل عبر الـ <span class="en">JVM</span>.</p>
+      <div class="grid-4" style="text-align:center;">
+        <div class="card">
+          <h3>1. الكود المصدري</h3>
+          <p><span class="en">Source Code (.java)</span></p>
+          <p>الكود الذي يكتبه المبرمج</p>
+        </div>
+        <div class="card gold">
+          <h3>2. المترجم</h3>
+          <p><span class="en">Java Compiler (javac)</span></p>
+          <p>يفحص قواعد اللغة <span class="en">Syntax</span></p>
+        </div>
+        <div class="card green">
+          <h3>3. الكود الوسيط</h3>
+          <p><span class="en">Bytecode (.class)</span></p>
+          <p>ملف جاهز للتشغيل على أي جهاز</p>
+        </div>
+        <div class="card purple">
+          <h3>4. آلة جافا الافتراضية</h3>
+          <p><span class="en">JVM Execution</span></p>
+          <p>تحول الكود لأوامر المعالج <span class="en">CPU</span></p>
+        </div>
+      </div>
+      <pre>
+public class Main {
+    // Main Method: نقطة البداية لأي برنامج جافا (Entry Point)
+    public static void main(String[] args) {
+        System.out.println("Hello Software Engineers at Cairo University!");
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Interactive RAM & Variables Simulator -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>محاكي الذاكرة والمتغيرات (Interactive RAM & Variables Simulator)</h1>
+      <span class="badge">Data Types & Variables</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>اضغط على كل سطر كود لحجز المتغير في الـ <span class="en">RAM</span>:</h3>
+        <p style="margin-bottom:12px;">المتغير <span class="en">Variable</span> هو صندوق في الذاكرة له: <b>نوع <span class="en">Type</span></b> + <b>اسم <span class="en">camelCase</span></b> + <b>قيمة <span class="en">Value</span></b>.</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="action-btn" style="text-align:left; font-family:'Fira Code';" onclick="allocRam(1)">1️⃣ int stockQty = 150;</button>
+          <button class="action-btn gold" style="text-align:left; font-family:'Fira Code';" onclick="allocRam(2)">2️⃣ double unitPrice = 299.95;</button>
+          <button class="action-btn green" style="text-align:left; font-family:'Fira Code';" onclick="allocRam(3)">3️⃣ boolean isAvailable = true;</button>
+          <button class="action-btn" style="background:#7e22ce; text-align:left; font-family:'Fira Code';" onclick="allocRam(4)">4️⃣ String productName = "HP Laptop";</button>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="color:var(--accent); margin-bottom:10px; text-align:center;">🧠 الذاكرة العشوائية الحية <span class="en">(Live RAM Memory)</span></h3>
+        <div class="ram-grid">
+          <div id="ram1" class="ram-box">
+            <div class="ram-type">int (4 Bytes - عدد صحيح)</div>
+            <div class="ram-name">stockQty</div>
+            <div class="ram-val">150</div>
+          </div>
+          <div id="ram2" class="ram-box">
+            <div class="ram-type">double (8 Bytes - رقم عشري)</div>
+            <div class="ram-name">unitPrice</div>
+            <div class="ram-val">299.95</div>
+          </div>
+          <div id="ram3" class="ram-box">
+            <div class="ram-type">boolean (1 Bit - منطقي)</div>
+            <div class="ram-name">isAvailable</div>
+            <div class="ram-val">true</div>
+          </div>
+          <div id="ram4" class="ram-box">
+            <div class="ram-type">String (Reference - نص)</div>
+            <div class="ram-name">productName</div>
+            <div class="ram-val">"HP Laptop"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: Input / Output via Scanner -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>المدخلات والمخرجات في جافا (Console Output & Scanner Input)</h1>
+      <span class="badge">Input / Output</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div>
+        <pre>
+import java.util.Scanner; // 1. استدعاء كلاس Scanner
+
+public class CashierInput {
+    public static void main(String[] args) {
+        // 2. إنشاء كائن القراءة من لوحة المفاتيح
+        Scanner input = new Scanner(System.in);
+
+        // 3. قراءة البيانات حسب نوعها
+        System.out.print("Enter Product Name: ");
+        String name = input.nextLine();   // قراءة نص
+
+        System.out.print("Enter Quantity: ");
+        int qty = input.nextInt();        // قراءة عدد صحيح
+
+        System.out.print("Enter Unit Price: ");
+        double price = input.nextDouble(); // قراءة رقم عشري
+
+        // دمج النصوص مع المتغيرات باستخدام +
+        System.out.println("Product: " + name + " | Total: " + (qty * price));
+    }
+}</pre>
+      </div>
+      <div class="card gold">
+        <h3>أهم الدوال والقواعد <span class="en">Key I/O Methods</span></h3>
+        <ul>
+          <li><span class="en">System.out.println()</span>: تطبع النص ثم تنزل سطر جديد.</li>
+          <li><span class="en">System.out.print()</span>: تطبع النص وتقف في نفس السطر.</li>
+          <li><span class="en">input.nextLine()</span>: لقراءة سلسلة نصية كاملة <span class="en">String</span>.</li>
+          <li><span class="en">input.nextInt()</span>: لقراءة عدد صحيح <span class="en">int</span>.</li>
+          <li><span class="en">input.nextDouble()</span>: لقراءة رقم عشري <span class="en">double</span>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: Operators & Interactive Truth Table -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>المعاملات الحسابية والمقارنة والمنطقية (Operators in Java)</h1>
+      <span class="badge">Operators</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>1. المعاملات الحسابية والمقارنة</h3>
+        <ul>
+          <li><b>الحسابية <span class="en">Arithmetic</span>:</b> <span class="en">+ , - , * , /</span> وباقي القسمة <span class="en">% (Modulus)</span>.</li>
+          <li>⚠️ <b>فخ قسمة الأعداد الصحيحة:</b> في جافا <span class="en">5 / 2</span> تعطي <span class="en">2</span> وليس <span class="en">2.5</span>! للحصول على الكسر نكتب <span class="en">5.0 / 2</span>.</li>
+          <li><b>المقارنة <span class="en">Relational</span>:</b> <span class="en">== , != , &gt; , &lt; , &gt;= , &lt;=</span> (نتيجتها دائماً <span class="en">boolean</span>).</li>
+        </ul>
+      </div>
+      <div class="card gold">
+        <h3>2. مختبر المعاملات المنطقية التفاعلي <span class="en">Logical Lab</span></h3>
+        <p>اضغط لتبديل قيم الشرطين ومشاهدة النتيجة الفورية:</p>
+        <div style="display:flex; gap:12px; margin:12px 0;">
+          <button id="condA" class="action-btn green" onclick="toggleCond('A')">الشرط A (الكمية متوفرة): true</button>
+          <button id="condB" class="action-btn green" onclick="toggleCond('B')">الشرط B (الرصيد كافي): true</button>
+        </div>
+        <table>
+          <tr><th>المعامل</th><th>المعنى</th><th>النتيجة الحالية</th></tr>
+          <tr><td><span class="en">A &amp;&amp; B (AND)</span></td><td>لازم الشرطان معاً <span class="en">true</span></td><td id="resAnd" style="color:var(--success); font-weight:bold;">true</td></tr>
+          <tr><td><span class="en">A || B (OR)</span></td><td>يكفي شرط واحد <span class="en">true</span></td><td id="resOr" style="color:var(--success); font-weight:bold;">true</td></tr>
+          <tr><td><span class="en">!A (NOT)</span></td><td>عكس الشرط A</td><td id="resNot" style="color:var(--danger); font-weight:bold;">false</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Conditional Statements & Live POS Java Runner -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>الجمل الشرطية وتطبيق الكاشير الكامل بلغة جافا (Java if / else POS)</h1>
+      <span class="badge">Live Code Execution</span>
+    </div>
+    <div class="slide-body grid-2">
+      <pre style="font-size:0.92rem;">
+import java.util.Scanner;
+public class MiniPosSystem {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int stockQty = 50;
+
+        double itemPrice = input.nextDouble();
+        int reqQty = input.nextInt();
+
+        if (reqQty &lt;= 0) {
+            System.out.println("Error: Quantity must be &gt; 0");
+        } else if (reqQty &lt;= stockQty) {
+            double total = itemPrice * reqQty;
+            if (total &gt;= 1000) {
+                total = total - (total * 0.10); // 10% Discount
+                System.out.println("10% Discount Applied!");
+            }
+            stockQty = stockQty - reqQty;
+            System.out.println("Final Total: " + total + " EGP");
+            System.out.println("Remaining Stock: " + stockQty);
+        } else {
+            System.out.println("Sorry, Out of Stock!");
+        }
+    }
+}</pre>
+      <div class="card green">
+        <h3>🖥️ شغّل كود الجافا وجربه أمام الطلاب:</h3>
+        <p style="margin-bottom:10px;">أدخل قيم تجريبية واضغط <span class="en">Run Java Code</span>:</p>
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+          <span>السعر <span class="en">itemPrice</span>:</span>
+          <input type="number" id="javaPrice" class="input-box" value="600">
+          <span>الكمية <span class="en">reqQty</span>:</span>
+          <input type="number" id="javaQty" class="input-box" value="2">
+        </div>
+        <button class="action-btn green" onclick="runJavaPOS()">▶️ Run MiniPosSystem.main()</button>
+        <pre id="javaConsole" style="margin-top:15px; border-left-color:var(--success); color:var(--success);">
+// Java Terminal Output:
+Click "Run" to execute the code...</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 16: switch Statement -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>جملة الاختيار المتعدد (switch Statement)</h1>
+      <span class="badge">Switch Case</span>
+    </div>
+    <div class="slide-body grid-2">
+      <pre>
+System.out.println("Select Payment: [1] Cash  [2] Card  [3] Wallet");
+int paymentMethod = input.nextInt();
+
+switch (paymentMethod) {
+    case 1:
+        System.out.println("Payment Method: Cash (0% Fee)");
+        break; // تمنع النزول للحالة التالية (Fall-through)
+    case 2:
+        System.out.println("Payment Method: Credit Card");
+        break;
+    case 3:
+        System.out.println("Payment Method: E-Wallet");
+        break;
+    default:
+        System.out.println("Error: Invalid Payment Option!");
+}</pre>
+      <div class="card gold">
+        <h3>متى نفضل <span class="en">switch</span> على <span class="en">if-else</span>؟</h3>
+        <ul>
+          <li>عندما نختبر <b>متغيراً واحداً فقط</b> مقابل قيم محددة وثابتة <span class="en">Discrete Values</span> (مثل أرقام القوائم <span class="en">Menus</span>، طرق الدفع، أو نوع العضوية).</li>
+          <li>أهمية <span class="en">break;</span>: أخذ استراحة والخروج من البلوك فور تطابق الحالة.</li>
+          <li>أهمية <span class="en">default:</span>: تعمل مثل <span class="en">else</span> في حال إدخال رقم غير موجود في الاختيارات.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 17: Debugging Basics -->
+  <div class="slide" data-sec="4">
+    <div class="slide-header">
+      <h1>أساسيات اكتشاف الأخطاء وقراءة الرسائل (Debugging Basics)</h1>
+      <span class="badge">Debugging & Errors</span>
+    </div>
+    <div class="slide-body grid-3">
+      <div class="card" style="border-right-color:var(--danger);">
+        <h3>1. أخطاء القواعد<br><span class="en">Syntax Errors</span></h3>
+        <p>يكتشفها المترجم <span class="en">javac</span> قبل التشغيل ويضع خطاً أحمر.</p>
+        <p style="margin-top:8px;"><b>أمثلة:</b> نسيان <span class="en">;</span> في نهاية السطر، أو كتابة <span class="en">system</span> بحرف صغير (لأن جافا <span class="en">Case-Sensitive</span>).</p>
+      </div>
+      <div class="card gold">
+        <h3>2. أخطاء وقت التشغيل<br><span class="en">Runtime Errors</span></h3>
+        <p>الكود سليم لغوياً، لكن البرنامج ينهار أثناء التشغيل <span class="en">Exception</span>.</p>
+        <p style="margin-top:8px;"><b>أمثلة:</b> القسمة على صفر <span class="en">10 / 0</span>، أو إدخال حروف نصية عندما ينتظر البرنامج <span class="en">nextInt()</span>.</p>
+      </div>
+      <div class="card purple">
+        <h3>3. الأخطاء المنطقية<br><span class="en">Logical Errors (Bugs)</span></h3>
+        <p>البرنامج يشتغل للنهاية بدون أي رسالة خطأ، لكن النتيجة الحسابية غلط!</p>
+        <p style="margin-top:8px;"><b>أمثلة:</b> جمع قيمة الخصم على الفاتورة بدلاً من طرحها <span class="en">total + discount</span>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 18: Lab 1 (HR Payroll) + Model Answer Toggle -->
+  <div class="slide" data-sec="5">
+    <div class="slide-header">
+      <h1>رابعا: تدريبات المعمل — التمرين الأول: نظام الرواتب (HR Payroll Lab)</h1>
+      <span class="badge">Hands-on Lab (15 دقيقة)</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card">
+        <h3>🛠️ المطلوب تنفيذه في المعمل:</h3>
+        <ul>
+          <li><b>المدخلات <span class="en">Inputs</span>:</b> اسم الموظف <span class="en">String</span>، الراتب الأساسي <span class="en">double</span>، وعدد الساعات الإضافية <span class="en">int</span>.</li>
+          <li><b>القواعد <span class="en">Rules</span>:</b>
+            <br>1. سعر الساعة الإضافية = <b>75 جنيه</b>.
+            <br>2. إذا كانت الساعات الإضافية <span class="en">&gt;= 15</span> ساعة، يأخذ الموظف مكافأة <span class="en">Bonus = 500 EGP</span>.
+            <br>3. يُخصم <b>10% ضرائب</b> من الإجمالي الكلي <span class="en">Gross Salary</span>.
+          </li>
+          <li><b>المخرجات:</b> طباعة الاسم، الإجمالي قبل الضرائب، قيمة الضرائب، وصافي الراتب <span class="en">Net Salary</span>.</li>
+        </ul>
+        <button class="action-btn gold" style="margin-top:12px;" onclick="toggleId('sol1')">👁️ إظهار / إخفاء كود الحل النموذجي (Show Solution)</button>
+      </div>
+      <div id="sol1" style="display:none;">
+        <pre style="font-size:0.88rem;">
+import java.util.Scanner;
+public class HrPayrollLab {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter Employee Name: ");
+        String name = in.nextLine();
+        System.out.print("Enter Basic Salary: ");
+        double basic = in.nextDouble();
+        System.out.print("Enter Overtime Hours: ");
+        int hours = in.nextInt();
+
+        double bonus = (hours &gt;= 15) ? 500.0 : 0.0;
+        double gross = basic + (hours * 75.0) + bonus;
+        double tax = gross * 0.10;
+        double net = gross - tax;
+
+        System.out.println("Employee: " + name);
+        System.out.println("Gross: " + gross + " | Tax: " + tax + " | Net: " + net);
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 19: Lab 2 (CRM & Sales Discount) + Model Answer Toggle -->
+  <div class="slide" data-sec="5">
+    <div class="slide-header">
+      <h1>التمرين العملي الثاني: نظام خصومات العملاء (CRM & Sales Discount Lab)</h1>
+      <span class="badge">Hands-on Lab (20 دقيقة)</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card gold">
+        <h3>🛠️ المطلوب تنفيذه باستخدام <span class="en">switch &amp; if-else</span>:</h3>
+        <ul>
+          <li><b>المدخلات:</b> إجمالي المشتريات <span class="en">double amount</span>، ونوع العضوية <span class="en">int type</span>.</li>
+          <li><b>قواعد الخصم:</b>
+            <br>• <b>[1] Regular:</b> خصم <b>5%</b> إذا كانت المشتريات <span class="en">&gt;= 500</span>، وإلا 0%.
+            <br>• <b>[2] Silver:</b> خصم <b>10%</b>، ويصبح <b>15%</b> إذا كانت المشتريات <span class="en">&gt;= 1000</span>.
+            <br>• <b>[3] Gold:</b> خصم ثابت <b>20%</b> على أي فاتورة.
+            <br>• <b>غير ذلك:</b> يطبع <span class="en">"Invalid Membership Type!"</span>.
+          </li>
+        </ul>
+        <button class="action-btn" style="margin-top:12px;" onclick="toggleId('sol2')">👁️ إظهار / إخفاء كود الحل النموذجي (Show Solution)</button>
+      </div>
+      <div id="sol2" style="display:none;">
+        <pre style="font-size:0.86rem;">
+import java.util.Scanner;
+public class CrmDiscountLab {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter Order Amount: ");
+        double amount = in.nextDouble();
+        System.out.print("Membership [1] Regular [2] Silver [3] Gold: ");
+        int type = in.nextInt();
+        double discRate = 0.0;
+
+        switch (type) {
+            case 1:
+                if (amount &gt;= 500) discRate = 0.05;
+                break;
+            case 2:
+                discRate = (amount &gt;= 1000) ? 0.15 : 0.10;
+                break;
+            case 3:
+                discRate = 0.20;
+                break;
+            default:
+                System.out.println("Invalid Membership Type!");
+                return;
+        }
+        double finalPay = amount - (amount * discRate);
+        System.out.println("Final Amount to Pay: " + finalPay + " EGP");
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 20: Lab 3 (Smart Inventory Reorder Alert) + Model Answer Toggle -->
+  <div class="slide" data-sec="5">
+    <div class="slide-header">
+      <h1>التمرين العملي الثالث (التحدي): تنبيهات المخزون الذكية (Smart Inventory Lab)</h1>
+      <span class="badge">Hands-on Lab (25 دقيقة)</span>
+    </div>
+    <div class="slide-body grid-2">
+      <div class="card green">
+        <h3>🛠️ المطلوب تنفيذه في التحدي:</h3>
+        <ul>
+          <li><b>المدخلات:</b> اسم الصنف، الرصيد الحالي <span class="en">currentStock</span>، حد الأمان <span class="en">minThreshold</span>، نوع الحركة (<span class="en">[1] Sell/Issue</span> أو <span class="en">[2] Restock/Add</span>)، والكمية <span class="en">qty</span>.</li>
+          <li><b>القواعد:</b>
+            <br>1. التأكد أن <span class="en">qty &gt; 0</span>.
+            <br>2. في حالة البيع <b>[1]</b>: إذا كانت الكمية متوفرة نخصمها، ثم نفحص: إذا أصبح الرصيد المتبقي <span class="en">&lt;= minThreshold</span> نطبع تحذيراً: <span class="en">"WARNING: Low Stock! Reorder soon."</span>.
+            <br>3. في حالة التوريد <b>[2]</b>: نجمع الكمية على الرصيد ونطبع الرصيد المحدث.
+          </li>
+        </ul>
+        <button class="action-btn green" style="margin-top:12px;" onclick="toggleId('sol3')">👁️ إظهار / إخفاء كود الحل النموذجي (Show Solution)</button>
+      </div>
+      <div id="sol3" style="display:none;">
+        <pre style="font-size:0.84rem;">
+import java.util.Scanner;
+public class SmartInventoryLab {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int currentStock = 25, minThreshold = 10;
+        System.out.print("Operation [1] Sell [2] Restock: ");
+        int op = in.nextInt();
+        System.out.print("Enter Quantity: ");
+        int qty = in.nextInt();
+
+        if (qty &lt;= 0) {
+            System.out.println("Error: Quantity must be positive!");
+        } else if (op == 1) {
+            if (qty &lt;= currentStock) {
+                currentStock -= qty;
+                System.out.println("Sold! Remaining Stock: " + currentStock);
+                if (currentStock &lt;= minThreshold) {
+                    System.out.println("⚠️ WARNING: Low Stock! Please reorder.");
+                }
+            } else {
+                System.out.println("❌ Insufficient Stock!");
+            }
+        } else if (op == 2) {
+            currentStock += qty;
+            System.out.println("Restocked! New Stock: " + currentStock);
+        }
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Footer Navigation -->
+<div class="footer">
+  <div class="ctrl-group">
+    <button class="action-btn" onclick="changeSlide(-1)">➡️ الشريحة السابقة</button>
+    <button class="action-btn" onclick="changeSlide(1)">الشريحة التالية ⬅️</button>
+  </div>
+  <div id="slideCounter" style="font-weight:800; color:var(--accent); font-size:1.1rem;">شريحة 1 من 21</div>
+  <div style="color:var(--muted); font-size:0.95rem;">استخدم الأسهم (⬅️ ➡️) للتنقل أو اضغط F11 لملء الشاشة</div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const select = document.getElementById('slideJump');
+  let current = 0;
+
+  // Populate Slide Jump Dropdown
+  slides.forEach((s, idx) => {
+    const titleEl = s.querySelector('h1');
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `${idx + 1}. ${titleEl ? titleEl.textContent.substring(0, 38) : 'الغلاف'}`;
+    select.appendChild(opt);
+  });
+
+  function goToSlide(index) {
+    slides[current].classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    select.value = current;
+    document.getElementById('slideCounter').textContent = `شريحة ${current + 1} من ${slides.length}`;
+    document.getElementById('progressBar').style.width = `${((current + 1) / slides.length) * 100}%`;
+  }
+
+  function changeSlide(step) { goToSlide(current + step); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft' || e.key === 'PageDown') changeSlide(1);
+    if (e.key === 'ArrowRight' || e.key === 'PageUp') changeSlide(-1);
+  });
+
+  // Slide 2: Interactive 3-Month Tabs
+  function showMonth(m) {
+    [1, 2, 3].forEach(i => document.getElementById('monthBox' + i).style.display = (i === m) ? 'grid' : 'none');
+  }
+
+  // Slide 5: Abstraction Filter
+  function applyAbstraction() {
+    document.querySelectorAll('.noise-item').forEach(el => {
+      el.style.opacity = '0.15';
+      el.style.textDecoration = 'line-through';
+    });
+  }
+
+  // Slide 8: Live Flowchart & Pseudocode Step Simulator
+  let simStep = -1;
+  function resetSim() {
+    simStep = -1;
+    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active-step'));
+    document.querySelectorAll('.code-line').forEach(c => c.classList.remove('highlight'));
+    document.getElementById('simStatus').textContent = 'تمت إعادة الضبط. اضغط "نفذ الخطوة التالية".';
+    document.getElementById('simOutputBox').textContent = 'Output Console: Waiting...';
+  }
+
+  function stepSim() {
+    const price = parseFloat(document.getElementById('simPrice').value) || 0;
+    const qty = parseInt(document.getElementById('simQty').value) || 0;
+    const stock = parseInt(document.getElementById('simStock').value) || 0;
+    let total = price * qty;
+
+    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active-step'));
+    document.querySelectorAll('.code-line').forEach(c => c.classList.remove('highlight'));
+
+    simStep++;
+    if (simStep === 0) {
+      document.getElementById('fn0').classList.add('active-step');
+      document.getElementById('ps0').classList.add('highlight');
+      document.getElementById('simStatus').textContent = 'الخطوة 1: بداية الخوارزمية (START)';
+    } else if (simStep === 1) {
+      document.getElementById('fn1').classList.add('active-step');
+      document.getElementById('ps1').classList.add('highlight');
+      document.getElementById('simStatus').textContent = `الخطوة 2: قراءة المدخلات (Price=${price}, Qty=${qty}, Stock=${stock})`;
+    } else if (simStep === 2) {
+      document.getElementById('fn2').classList.add('active-step');
+      document.getElementById('ps2').classList.add('highlight');
+      const cond1 = (qty > 0 && qty <= stock);
+      document.getElementById('simStatus').textContent = `الخطوة 3: فحص الشرط الأول (هل ${qty} <= ${stock}؟) ➔ النتيجة: ${cond1 ? 'True (نعم)' : 'False (لا)'}`;
+      if (!cond1) simStep = 99; // Jump to else
+    } else if (simStep === 3) {
+      document.getElementById('fn3').classList.add('active-step');
+      document.getElementById('ps3').classList.add('highlight');
+      document.getElementById('simStatus').textContent = `الخطوة 4: حساب الإجمالي المبدئي total = ${price} * ${qty} = ${total}`;
+    } else if (simStep === 4) {
+      document.getElementById('fn4').classList.add('active-step');
+      document.getElementById('ps4').classList.add('highlight');
+      document.getElementById('simStatus').textContent = `الخطوة 5: فحص شرط الخصم (هل ${total} >= 1000؟) ➔ ${total >= 1000 ? 'نعم يستحق 10%' : 'لا يستحق خصم'}`;
+    } else if (simStep === 5) {
+      document.getElementById('fn5').classList.add('active-step');
+      if (total >= 1000) {
+        document.getElementById('ps5').classList.add('highlight');
+        total = total * 0.90;
+      }
+      document.getElementById('ps7').classList.add('highlight');
+      document.getElementById('simStatus').textContent = `الخطوة 6: الصافي = ${total} جنيه | تحديث المخزن = ${stock - qty}`;
+    } else if (simStep === 6) {
+      document.getElementById('fn6').classList.add('active-step');
+      document.getElementById('ps8').classList.add('highlight');
+      if (total >= 1000) total = (price * qty) * 0.90;
+      document.getElementById('simOutputBox').textContent = `✅ OUTPUT: Total to Pay = ${total} EGP | Remaining Stock = ${stock - qty}`;
+      document.getElementById('simStatus').textContent = 'اكتمل تنفيذ الخوارزمية بنجاح!';
+      simStep = -1;
+    } else if (simStep === 100) {
+      document.getElementById('fn6').classList.add('active-step');
+      document.getElementById('ps10').classList.add('highlight');
+      document.getElementById('simOutputBox').textContent = `❌ ERROR: Out of Stock or Invalid Quantity!`;
+      document.getElementById('simStatus').textContent = 'انتهت الخوارزمية برسالة خطأ.';
+      simStep = -1;
+    }
+  }
+
+  // Slide 10: Break Timer
+  let breakInterval = null;
+  let breakSeconds = 1800;
+  function startBreakTimer() {
+    if (breakInterval) return;
+    breakInterval = setInterval(() => {
+      if (breakSeconds > 0) {
+        breakSeconds--;
+        const m = String(Math.floor(breakSeconds / 60)).padStart(2, '0');
+        const s = String(breakSeconds % 60).padStart(2, '0');
+        document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+      }
+    }, 1000);
+  }
+  function resetBreakTimer() {
+    clearInterval(breakInterval);
+    breakInterval = null;
+    breakSeconds = 1800;
+    document.getElementById('timerDisplay').textContent = "30:00";
+  }
+
+  // Slide 12: RAM Allocator
+  function allocRam(id) {
+    document.getElementById('ram' + id).classList.toggle('allocated');
+  }
+
+  // Slide 14: Logical Operators Lab
+  let valA = true, valB = true;
+  function toggleCond(which) {
+    if (which === 'A') valA = !valA;
+    if (which === 'B') valB = !valB;
+    const btnA = document.getElementById('condA');
+    const btnB = document.getElementById('condB');
+    btnA.textContent = `الشرط A (الكمية متوفرة): ${valA}`;
+    btnB.textContent = `الشرط B (الرصيد كافي): ${valB}`;
+    btnA.style.background = valA ? '#16a34a' : '#dc2626';
+    btnB.style.background = valB ? '#16a34a' : '#dc2626';
+
+    document.getElementById('resAnd').textContent = valA && valB;
+    document.getElementById('resAnd').style.color = (valA && valB) ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('resOr').textContent = valA || valB;
+    document.getElementById('resOr').style.color = (valA || valB) ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('resNot').textContent = !valA;
+    document.getElementById('resNot').style.color = (!valA) ? 'var(--success)' : 'var(--danger)';
+  }
+
+  // Slide 15: Simulated Java Runner
+  function runJavaPOS() {
+    const p = parseFloat(document.getElementById('javaPrice').value) || 0;
+    const q = parseInt(document.getElementById('javaQty').value) || 0;
+    let stock = 50;
+    let out = `> javac MiniPosSystem.java\n> java MiniPosSystem\n`;
+    if (q <= 0) {
+      out += `Error: Quantity must be > 0`;
+    } else if (q <= stock) {
+      let tot = p * q;
+      if (tot >= 1000) {
+        tot = tot - (tot * 0.10);
+        out += `10% Discount Applied!\n`;
+      }
+      stock -= q;
+      out += `Final Total: ${tot} EGP\nRemaining Stock: ${stock}`;
+    } else {
+      out += `Sorry, Out of Stock!`;
+    }
+    document.getElementById('javaConsole').textContent = out;
+  }
+
+  // Lab Solutions Toggle
+  function toggleId(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>
+
