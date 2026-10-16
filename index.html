@@ -202,3 +202,465 @@
             font-family: 'Fira Code', monospace;
             font-size: 1.3rem;
             font-weight: 700;
+            color: var(--accent-primary);
+            display: block;
+        }
+
+        .stat-box .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* شريط التقدم */
+        .progress-wrapper {
+            margin-top: 15px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(156, 163, 175, 0.15);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 99px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* أدوات البحث والفلترة */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-color: var(--accent-primary);
+        }
+
+        /* شبكة كروت المحاضرات */
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .lecture-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            cursor: pointer;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-card-hover);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* تصميم خاص للمحاضرة المفعلة حالياً */
+        .lecture-card.active-lecture {
+            border: 1.5px solid var(--accent-primary);
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .lecture-card.locked-lecture {
+            opacity: 0.72;
+        }
+
+        .lecture-card.locked-lecture:hover {
+            border-color: var(--locked);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lec-number {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--accent-primary);
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 99px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge.live {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .status-badge.upcoming {
+            background: rgba(156, 163, 175, 0.12);
+            color: var(--text-secondary);
+        }
+
+        .card-body h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .card-body p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            min-height: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.88rem;
+        }
+
+        .date-info {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-link {
+            font-weight: 700;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .locked-lecture .action-link {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* إشعار منبثق (Toast) */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1f2937;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 24px; }
+            .hero-title h1 { font-size: 1.5rem; }
+            .lectures-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="container">
+        <!-- الهيدر -->
+        <nav class="navbar">
+            <div class="brand">
+                <div class="brand-icon">&lt;/&gt;</div>
+                <div class="brand-text">
+                    <h2>بوابة هندسة البرمجيات</h2>
+                    <span>Academic Portal // 2026-2027</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">
+                    <span id="themeIcon">☀️</span>
+                    <span id="themeText">الوضع النهاري</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- القسم الترحيبي والإحصائيات -->
+        <section class="hero">
+            <div class="hero-top">
+                <div class="hero-title">
+                    <h1>الخطة الدراسية والمنهج التفاعلي</h1>
+                    <p>الواجهة الأساسية للوصول للعروض التقديمية والمحتوى التدريبي طوال الفصل الدراسي</p>
+                </div>
+                <div class="stats-badges">
+                    <div class="stat-box">
+                        <span class="num" id="totalLecturesCount">13</span>
+                        <span class="label">إجمالي المحاضرات</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num" id="activeLecturesCount">1</span>
+                        <span class="label">متاح حالياً</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span>تقدم الفصل الدراسي</span>
+                    <span id="progressPercentage">8%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- البحث والتصفية -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ابحث برقم المحاضرة أو التاريخ أو العنوان..." oninput="renderLectures()">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="setFilter('all', this)">الكل (13)</button>
+                <button class="filter-btn" onclick="setFilter('active', this)">المتاحة الآن</button>
+                <button class="filter-btn" onclick="setFilter('locked', this)">القادمة</button>
+            </div>
+        </div>
+
+        <!-- شبكة المحاضرات (يتم بناؤها بالجافاسكريبت) -->
+        <div class="lectures-grid" id="lecturesGrid"></div>
+    </div>
+
+    <!-- إشعار التنبيه للمحاضرات المغلقة -->
+    <div class="toast" id="toastMsg">
+        <span>🔒</span>
+        <span id="toastText">هذه المحاضرة ستكون متاحة في موعدها المحدد</span>
+    </div>
+
+    <script>
+        /* =================================================================
+           بيانات المحاضرات - تقدر تعدل العنوان أو تفتح أي محاضرة من هنا بسهولة
+           لتفعيل أي محاضرة غير كلمة 'locked' إلى 'active' وحط اللينك في link
+        ================================================================== */
+        const lecturesData = [
+            { id: 1, title: "المحاضرة الأولى:", subtitle: "اليوم الأول والانطلاقة التفاعلية", date: "16 أكتوبر 2026 (اليوم)", status: "active", link: "Cairo_Uni_Interactive_Deck.html" },
+            { id: 2, title: "المحاضرة الثانية:", subtitle: "", date: "23 أكتوبر 2026", status: "locked", link: "#" },
+            { id: 3, title: "المحاضرة الثالثة:", subtitle: "", date: "30 أكتوبر 2026", status: "locked", link: "#" },
+            { id: 4, title: "المحاضرة الرابعة:", subtitle: "", date: "06 نوفمبر 2026", status: "locked", link: "#" },
+            { id: 5, title: "المحاضرة الخامسة:", subtitle: "", date: "13 نوفمبر 2026", status: "locked", link: "#" },
+            { id: 6, title: "المحاضرة السادسة:", subtitle: "", date: "20 نوفمبر 2026", status: "locked", link: "#" },
+            { id: 7, title: "المحاضرة السابعة:", subtitle: "", date: "27 نوفمبر 2026", status: "locked", link: "#" },
+            { id: 8, title: "المحاضرة الثامنة:", subtitle: "", date: "04 ديسمبر 2026", status: "locked", link: "#" },
+            { id: 9, title: "المحاضرة التاسعة:", subtitle: "", date: "11 ديسمبر 2026", status: "locked", link: "#" },
+            { id: 10, title: "المحاضرة العاشرة:", subtitle: "", date: "18 ديسمبر 2026", status: "locked", link: "#" },
+            { id: 11, title: "المحاضرة الحادية عشرة:", subtitle: "", date: "25 ديسمبر 2026", status: "locked", link: "#" },
+            { id: 12, title: "المحاضرة الثانية عشرة:", subtitle: "", date: "02 يناير 2027", status: "locked", link: "#" },
+            { id: 13, title: "المحاضرة الثالثة عشرة:", subtitle: "", date: "09 يناير 2027", status: "locked", link: "#" }
+        ];
+
+        let currentFilter = 'all';
+
+        function renderLectures() {
+            const grid = document.getElementById('lecturesGrid');
+            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            grid.innerHTML = '';
+
+            // حساب التقدم
+            const activeCount = lecturesData.filter(l => l.status === 'active').length;
+            const totalCount = lecturesData.length;
+            const percentage = Math.round((activeCount / totalCount) * 100);
+
+            document.getElementById('activeLecturesCount').textContent = activeCount;
+            document.getElementById('totalLecturesCount').textContent = totalCount;
+            document.getElementById('progressPercentage').textContent = percentage + '%';
+            setTimeout(() => {
+                document.getElementById('progressBar').style.width = percentage + '%';
+            }, 100);
+
+            // فلترة وعرض الكروت
+            const filtered = lecturesData.filter(lec => {
+                const matchesFilter = currentFilter === 'all' || lec.status === currentFilter;
+                const matchesSearch = lec.title.toLowerCase().includes(searchQuery) ||
+                                      lec.subtitle.toLowerCase().includes(searchQuery) ||
+                                      lec.date.toLowerCase().includes(searchQuery) ||
+                                      String(lec.id).includes(searchQuery);
+                return matchesFilter && matchesSearch;
+            });
+
+            filtered.forEach(lec => {
+                const isActive = lec.status === 'active';
+                const card = document.createElement('a');
+                card.className = `lecture-card ${isActive ? 'active-lecture' : 'locked-lecture'}`;
+                card.href = isActive ? lec.link : 'javascript:void(0)';
+
+                if (!isActive) {
+                    card.onclick = () => showToast(`هذه المحاضرة ستكون متاحة يوم ${lec.date}`);
+                }
+
+                const formattedNum = String(lec.id).padStart(2, '0');
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="lec-number">LEC_${formattedNum}</span>
+                        ${isActive 
+                            ? `<span class="status-badge live"><span class="pulse-dot"></span> متاحة الآن</span>` 
+                            : `<span class="status-badge upcoming">🔒 قريباً</span>`
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h3>${lec.title}</h3>
+                        <p>${lec.subtitle || 'سيتم إضافة عنوان ومحتوى المحاضرة قريباً...'}</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="date-info">
+                            <span>📅</span>
+                            <span>${lec.date}</span>
+                        </div>
+                        <div class="action-link">
+                            <span>${isActive ? 'فتح العرض التفاعلي ←' : 'مغلق حالياً'}</span>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function setFilter(filterType, btnElement) {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderLectures();
+        }
+
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toastMsg');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+
+            document.getElementById('themeIcon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            document.getElementById('themeText').textContent = newTheme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي';
+        }
+
+        // تشغيل الواجهة أول ما الصفحة تفتح
+        window.addEventListener('DOMContentLoaded', renderLectures);
+    </script>
+</body>
+</html>
